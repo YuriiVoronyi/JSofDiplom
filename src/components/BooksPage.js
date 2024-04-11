@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { Modal, Button } from 'react-bootstrap';
 import SearchBar from './SearchBar';
 
 const BooksPage = () => {
     const [searchResults, setSearchResults] = useState([]);
+    const [showModal, setShowModal] = useState(false);
 
     const handleSearch = async (searchTerm) => {
         try {
@@ -15,9 +17,20 @@ const BooksPage = () => {
             
             // Обновление состояния компонента с результатами поиска
             setSearchResults(data);
+
+            // Показать модальное окно, если результаты поиска пусты
+            if (data.length === 0) {
+                setShowModal(true);
+            } else {
+                setShowModal(false);
+            }
         } catch (error) {
             console.error('Ошибка при выполнении запроса:', error);
         }
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
     };
 
     return (
@@ -25,11 +38,25 @@ const BooksPage = () => {
             <h1>Поиск книг</h1>
             <SearchBar onSearch={handleSearch} />
             {/* Вывод результатов поиска */}
-            <ul>
-                {searchResults.map(book => (
-                    <li key={book.id}>{book.name} {book.author} {book.price} {book.pathimg}</li>
-                ))}
-            </ul>
+            {searchResults.length > 0 && (
+                <ul>
+                    {searchResults.map(book => (
+                        <li key={book.id}>{book.name}, {book.author}, {book.price}, {book.pathimg}</li>
+                    ))}
+                </ul>
+            )}
+            {/* Модальное окно "Книга не найдена" */}
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Книга не найдена</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>К сожалению, по вашему запросу книга не найдена.</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>Закрыть</Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
